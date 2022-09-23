@@ -1,4 +1,4 @@
-package com.codingstuff.movielist;
+package com.codingstuff.movielist.views;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -12,6 +12,10 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.codingstuff.movielist.R;
+import com.codingstuff.movielist.VolleySingleton;
+import com.codingstuff.movielist.controller.UserAdapter;
+import com.codingstuff.movielist.models.UserModel;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,7 +28,8 @@ public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private RequestQueue requestQueue;
-    private List<Movie> movieList;
+    private List<UserModel> movieList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,33 +49,35 @@ public class MainActivity extends AppCompatActivity {
 
     private void fetchMovies() {
 
-        String url = "https://www.json-generator.com/api/json/get/cfsXpFGwwO?indent=2";
+        String url = "https://my-json-server.typicode.com/SharminSirajudeen/test_resources/users";
 
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONArray>() {
-            @Override
-            public void onResponse(JSONArray response) {
+                    @Override
+                    public void onResponse(JSONArray response) {
 
-                for (int i = 0 ; i < response.length() ; i ++){
-                    try {
-                        JSONObject jsonObject = response.getJSONObject(i);
-                        String title = jsonObject.getString("title");
-                        String overview = jsonObject.getString("overview");
-                        String poster = jsonObject.getString("poster");
-                        Double rating = jsonObject.getDouble("rating");
+                        for (int i = 0; i < response.length(); i++) {
+                            try {
+                                JSONObject jsonObject = response.getJSONObject(i);
 
-                        Movie movie = new Movie(title , poster , overview , rating);
-                        movieList.add(movie);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                                String albumId = jsonObject.getString("albumId");
+                                String userId = jsonObject.getString("userId");
+                                String name = jsonObject.getString("name");
+                                String url = jsonObject.getString("url");
+                                String thumbnailUrl = jsonObject.getString("thumbnailUrl");
+
+                                UserModel user = new UserModel(albumId, userId, name, url, thumbnailUrl);
+                                movieList.add(user);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                            UserAdapter adapter = new UserAdapter(MainActivity.this, movieList);
+
+                            recyclerView.setAdapter(adapter);
+                        }
                     }
-
-                    MovieAdapter adapter = new MovieAdapter(MainActivity.this , movieList);
-
-                    recyclerView.setAdapter(adapter);
-                }
-            }
-        }, new Response.ErrorListener() {
+                }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Toast.makeText(MainActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();

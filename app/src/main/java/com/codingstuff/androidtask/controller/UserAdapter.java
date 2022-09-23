@@ -1,4 +1,4 @@
-package com.codingstuff.movielist;
+package com.codingstuff.movielist.controller;
 
 import android.content.Context;
 import android.content.Intent;
@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -14,17 +13,22 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.codingstuff.movielist.R;
+import com.codingstuff.movielist.models.UserModel;
+import com.codingstuff.movielist.views.PostsScreen;
 
 import java.util.List;
 
-public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieHolder> {
+import de.hdodenhof.circleimageview.CircleImageView;
+
+public class UserAdapter extends RecyclerView.Adapter<UserAdapter.MovieHolder> {
 
     private Context context;
-    private List<Movie> movieList;
+    private List<UserModel> users;
 
-    public MovieAdapter(Context context , List<Movie> movies){
+    public UserAdapter(Context context , List<UserModel> movies){
         this.context = context;
-        movieList = movies;
+        users = movies;
     }
     @NonNull
     @Override
@@ -36,22 +40,23 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieHolder>
     @Override
     public void onBindViewHolder(@NonNull MovieHolder holder, int position) {
 
-        Movie movie = movieList.get(position);
-        holder.rating.setText(movie.getRating().toString());
-        holder.title.setText(movie.getTitle());
-        holder.overview.setText(movie.getOverview());
-        Glide.with(context).load(movie.getPoster()).into(holder.imageView);
+        UserModel user = users.get(position);
+
+        holder.title.setText(user.getName());
+        holder.overview.setText(user.getAlbumId());
+        Glide.with(context).load(user.getUrl()).into(holder.imageView);
 
         holder.constraintLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context , DetailActivity.class);
+                Intent intent = new Intent(context , PostsScreen.class);
 
                 Bundle bundle = new Bundle();
-                bundle.putString("title" , movie.getTitle());
-                bundle.putString("overview" , movie.getOverview());
-                bundle.putString("poster" , movie.getPoster());
-                bundle.putDouble("rating" , movie.getRating());
+                bundle.putString("albumId" , user.getAlbumId());
+                bundle.putString("userId" , user.getUserId());
+                bundle.putString("name" , user.getName());
+                bundle.putString("url" , user.getUrl());
+                bundle.putString("thumbnailUrl" , user.getThumbnailUrl());
 
                 intent.putExtras(bundle);
 
@@ -63,13 +68,13 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieHolder>
 
     @Override
     public int getItemCount() {
-        return movieList.size();
+        return users.size();
     }
 
     public class MovieHolder extends RecyclerView.ViewHolder{
 
-        ImageView imageView;
-        TextView title , overview , rating;
+        CircleImageView imageView;
+        TextView title , overview;
         ConstraintLayout constraintLayout;
 
         public MovieHolder(@NonNull View itemView) {
@@ -78,7 +83,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieHolder>
             imageView = itemView.findViewById(R.id.imageview);
             title = itemView.findViewById(R.id.title_tv);
             overview = itemView.findViewById(R.id.overview_tv);
-            rating = itemView.findViewById(R.id.rating);
             constraintLayout = itemView.findViewById(R.id.main_layout);
         }
     }
